@@ -1,0 +1,34 @@
+name: Build Audio Holder v6
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-2022
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up MSVC x64 environment
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Compile Audio Holder
+        shell: cmd
+        run: >-
+          cl.exe /nologo /O1 /Os /GL /MT /EHsc /W4 /DUNICODE /D_UNICODE
+          /DWIN32_LEAN_AND_MEAN /DNDEBUG /link /LTCG /OPT:REF /OPT:ICF
+          /SUBSYSTEM:WINDOWS /OUT:AudioHolder_v6.exe AudioHolder_v6.cpp
+          winmm.lib shell32.lib comctl32.lib advapi32.lib user32.lib gdi32.lib
+
+      - name: Upload executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: AudioHolder_v6-windows-x64
+          path: AudioHolder_v6.exe
+          if-no-files-found: error
