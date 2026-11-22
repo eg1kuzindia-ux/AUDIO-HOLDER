@@ -1,0 +1,32 @@
+# Put this file in your repository as:  .github/workflows/build.yml
+# Put Audio_holder_v6.cpp and Audio_holder_v6.cs in the repository root.
+name: build-audio-holder
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Build C++ version
+        shell: cmd
+        run: cl /nologo /O1 /Os /GS- /MT /EHsc Audio_holder_v6.cpp /Fe:Audio_holder_v6_cpp.exe /link /SUBSYSTEM:WINDOWS /INCREMENTAL:NO
+
+      - name: Build C# version
+        shell: cmd
+        run: '"%WINDIR%\Microsoft.NET\Framework64\v4.0.30319\csc.exe" /nologo /target:winexe /optimize+ /out:Audio_holder_v6_cs.exe /reference:System.Windows.Forms.dll /reference:System.Drawing.dll Audio_holder_v6.cs'
+
+      - name: Upload executables
+        uses: actions/upload-artifact@v4
+        with:
+          name: Audio_holder_v6
+          path: |
+            Audio_holder_v6_cpp.exe
+            Audio_holder_v6_cs.exe
